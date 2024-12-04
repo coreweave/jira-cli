@@ -105,10 +105,12 @@ func (i *Issue) Get() string {
 		}
 	})
 
-	if i.params.Reverse {
-		q.OrderBy(obf, jql.DirectionAscending)
-	} else {
-		q.OrderBy(obf, jql.DirectionDescending)
+	if ! i.params.RawQuery {
+		if i.params.Reverse {
+			q.OrderBy(obf, jql.DirectionAscending)
+		} else {
+			q.OrderBy(obf, jql.DirectionDescending)
+		}
 	}
 
 	return q.String()
@@ -189,6 +191,7 @@ type IssueParams struct {
 	From          uint
 	Limit         uint
 	JQL           string
+	RawQuery      bool
 
 	debug bool
 }
@@ -196,7 +199,7 @@ type IssueParams struct {
 func (ip *IssueParams) init(flags FlagParser) error {
 	var err error
 
-	boolParams := []string{"history", "watching", "reverse", "debug"}
+	boolParams := []string{"history", "watching", "reverse", "debug", "raw-query"}
 	stringParams := []string{
 		"resolution", "type", "parent", "priority", "reporter", "assignee", "component",
 		"created", "created-after", "created-before", "updated", "updated-after", "updated-before",
@@ -257,6 +260,8 @@ func (ip *IssueParams) setBoolParams(paramsMap map[string]bool) {
 			ip.Reverse = v
 		case "debug":
 			ip.debug = v
+		case "raw-query":
+			ip.RawQuery = v
 		}
 	}
 }
